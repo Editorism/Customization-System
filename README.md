@@ -38,3 +38,10 @@ The Customization Window View Configuration takes a list of Customization Option
 
 The Customization Settings specific to each Customization Option has to be attached to the CustomizationOptionViewConfiguration instance in order to bind the dependency between the Option and the customizable Game Object correctly.
 
+## Function
+
+The end result looks like this:
+
+![CustomizationDemo](https://user-images.githubusercontent.com/7835977/62138835-fd1de200-b2f0-11e9-9769-83f6f476156c.gif)
+
+
