@@ -9,7 +9,7 @@ This system was made for LunarByte during my internship in the summer of 2019. I
 ## How the system is used
 As the system will not work as is, the basic functionality and implementation method is described below
 ### Defining the customizable components of a Game Object
-Create a CustomizationSettings ScriptableObject instance from Asset Menu for the customizable Game Object and for each customization option. Customization Settings are used to define the components that are changeable in-game, using manually created ScriptableObjects that inherit from CustomizableSetting. For example: CustomizableMesh:
+Create a CustomizationSettings ScriptableObject instance from Asset Menu for the customizable Game Object and for each customization option. Customization Settings are used to define the components that are changeable in-game, using manually created ScriptableObjects that inherit from the abstract class CustomizableSetting. For example: CustomizableMesh:
 ```
 [CreateAssetMenu(fileName = nameof(CustomizableMesh), menuName = "Customization/Settings/" + nameof(CustomizableMesh))]
 public class CustomizableMesh : CustomizableSetting
@@ -34,13 +34,36 @@ The Customization Window View Configuration takes a list of Customization Option
 
 ![Screenshot2](https://user-images.githubusercontent.com/7835977/62125044-94c10780-b2d4-11e9-8275-d15b82f05eb0.png)
 
-*The Customization Option prefabs are laid out in a GridLayoutGroup*
+*The Customization Option prefabs are laid out in a GridLayoutGroup.*
 
 The Customization Settings specific to each Customization Option has to be attached to the CustomizationOptionViewConfiguration instance in order to bind the dependency between the Option and the customizable Game Object correctly.
 
 ## Function
+The Scene hierarchy is set up with a preview 3D-object that is rendered into a render texture used by a preview image, and a scroll view with a grid layout group in its content that takes in all the different customization options.
 
-The end result looks like this:
+![CustomizationExampleScene](https://user-images.githubusercontent.com/7835977/62193520-9516dc80-b380-11e9-8bce-792df7d68824.png)
+*The PreviewObject's mesh component is bound to the CustomizationModel's CustomizationSettings, which includes a mesh.*
+
+The binding of a customizable GameObject's components to the CustomizationModel's CustomizationSettings looks like this:
+```
+protected override void Configure(CustomizationViewModel viewModel, CustomizationView view, CustomizationModel model)
+    	{
+	    view.Bind<CustomizationView, CustomizationSettings>(view.SetCustomizationOptions)
+		    .ToProperty(model, m => m.CustomizationSettings, nameof(CustomizationModel.CustomizationSettings));
+   	}
+ ```
+ 
+ Each CustomizationOptionView is then bound to the CustomizationModel's CustomizationSettings:
+ ```
+ protected override void Configure(CustomizationOptionViewModel viewModel, CustomizationOptionView view, CustomizationModel cModel)
+	{
+		viewModel.CustomizationSettings = Settings;
+
+		viewModel.SetPlayerVisualsEvent.AddListener(() => cModel.ChangeCosmeticSettings(viewModel.CustomizationSettings));	
+	}
+ ```
+
+With the Scene hierarchy set up and the dependency bindings done, the end result looks like this:
 
 ![CustomizationDemo](https://user-images.githubusercontent.com/7835977/62138835-fd1de200-b2f0-11e9-9769-83f6f476156c.gif)
 
